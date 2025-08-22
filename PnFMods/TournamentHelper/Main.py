@@ -122,6 +122,7 @@ from EntityController import EntityController
 CC = constants.UiComponents
 
 SHIP_WEIGHT_KEY_BASE = 'modTournamentShipWeight_{}'
+TEAM_WEIGHT_KEY_BASE = 'modTournamentTeamWeight_{}'
 TOURNAMENT_MODE_KEY = 'modTournamentMode'
 
 def logInfo(*args):
@@ -153,6 +154,53 @@ class TournamentShipWeight(object):
             isFlagship = data.get('isFlagship', False)
             ui.addDataComponentWithId(newEntityId, key, {'weight': weight, 'isFlagship': isFlagship})
         logInfo('Added ship weight data', len(SHIP_DATA))
+
+        self._teamWeightEntities = {}
+        for teamId in range(2):
+            entityId = ui.createUiElement()
+            key = TEAM_WEIGHT_KEY_BASE.format(teamId)
+            ui.addDataComponentWithId(entityId, key, {'weight': 0})
+            self._teamWeightEntities[teamId] = entityId
+        events.onSFMEvent(self.__onSFMEevent)
+        logInfo('Added team weight entities')
+
+        self._vary = None
+
+    def __onSFMEevent(self, eventName, eventData):
+        if eventName == 'window.show' and isinstance(eventData, dict) and eventData.get('windowName', None) == 'ModalWindowTrainingRoom':
+            self.__startVary()
+        elif eventName == 'action.leaveTrainingRoom':
+            self.__stopVary()
+
+    def __startVary(self):
+        if self._vary is not None:
+            self.__stopVary()
+        self._vary = callbacks.perTick(self.recalcTeamWeight)
+
+    def __stopVary(self):
+        callbacks.cancel(self._vary)
+        self._vary = None
+
+    def recalcTeamWeight(self, *args):
+        myAccount = dataHub.getSingleEntity('accountSelf')
+        currentPreBattleId = myAccount[CC.preBattlePlayerSimple].preBattleId if CC.preBattlePlayerSimple in myAccount else None
+        teamWeights = {0: 0, 1: 0}
+        if currentPreBattleId is not None:
+            for playerEntity in dataHub.getEntityCollections('preBattlePlayerSimple'):
+                preBattlePlayer = playerEntity[CC.preBattlePlayerSimple]
+                if preBattlePlayer.preBattleId != currentPreBattleId:
+                    continue
+                elif preBattlePlayer.shipId is None:
+                    continue
+                elif preBattlePlayer.teamId not in teamWeights:
+                    continue
+                else:
+                    weight = SHIP_DATA.get(preBattlePlayer.shipId, 0)
+                    teamWeights[preBattlePlayer.teamId] += weight.get('weight', 0)
+
+        for teamId, weight in teamWeights.items():
+            entityId = self._teamWeightEntities[teamId]
+            ui.updateUiElementData(entityId, {'weight': weight})
 
 
 gHelper = TournamentHelper()
