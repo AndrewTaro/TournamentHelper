@@ -195,7 +195,7 @@ class TournamentShipWeight(object):
                 elif preBattlePlayer.teamId not in teamWeights:
                     continue
                 else:
-                    weight = SHIP_DATA.get(preBattlePlayer.shipId, 0)
+                    weight = SHIP_DATA.get(preBattlePlayer.shipId, {})
                     teamWeights[preBattlePlayer.teamId] += weight.get('weight', 0)
 
         for teamId, weight in teamWeights.items():
