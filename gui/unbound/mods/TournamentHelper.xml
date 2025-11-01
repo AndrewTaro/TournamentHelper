@@ -1,0 +1,296 @@
+<ui>
+	<block className="TeamMainElement">
+		<bind name="firstEntityDH" value="'trainingRoomEntity'; CC.trainingRoomWindowState"/>
+		<bind name="watchDH" value="'windowState'; ['trainingRoomEntity.trainingRoomWindowState.evUpdate']; trainingRoomEntity.trainingRoomWindowState.state"/>
+		<bind name="watchDH" value="'notReadyWindowState'; ['trainingRoomEntity.trainingRoomWindowState.evUpdate']; trainingRoomEntity.trainingRoomWindowState.notReadyWindowState"/>
+		<bind name="watchDH" value="'windowInset'; ['trainingRoomEntity.trainingRoomWindowState.evUpdate']; trainingRoomEntity.trainingRoomWindowState.inset"/>
+		<bind name="watchDH" value="'windowInsetLabel'; ['trainingRoomEntity.trainingRoomWindowState.evUpdate']; trainingRoomEntity.trainingRoomWindowState.insetLabel"/>
+		<bind name="firstEntityDH" value="'selfPlayerEntity'; CC.accountSelf"/>
+		<bind name="watchDH" value="'selfPreBattleId'; ['selfPlayerEntity.preBattlePlayerSimple.evPreBattleIdChanged']; selfPlayerEntity.preBattlePlayerSimple.preBattleId"/>
+		<bind name="watchDH" value="'selfTeamId'; ['selfPlayerEntity.preBattlePlayerSimple.evTeamIdChanged']; selfPlayerEntity.preBattlePlayerSimple.teamId"/>
+		<bind name="watchDH" value="'isSelfPlayerOwner'; ['selfPlayerEntity.preBattlePlayerSimple.evIsCommanderChanged']; selfPlayerEntity.preBattlePlayerSimple.isCommander"/>
+		<bind name="watchDH" value="'isSelfPlayerCommander'; ['selfPlayerEntity.trainingRoomPlayer.evUpdate']; selfPlayerEntity.trainingRoomPlayer.isCommander &amp;&amp; selfTeamId == _teamId"/>
+		<bind name="watchDH" value="'isBotsEnabled'; ['trainingRoomEntity.trainingRoom.evUpdate']; trainingRoomEntity.trainingRoom.isBotsEnabled"/>
+		<bind name="watch" value="'isSpectatorsTeam'; _teamId == SC.Common.TRAINING_ROOM_TEAMS_IDS.OBSERVER_TEAM"/>
+		<bind name="watch" value="'isTeamManagementAvailable'; 	(isSelfPlayerOwner || isSelfPlayerCommander) &amp;&amp; 
+												(windowState == 'created') &amp;&amp; 
+												(_teamId != SC.Common.TRAINING_ROOM_TEAMS_IDS.NEUTRAL_TEAM) &amp;&amp;
+												!isSpectatorsTeam &amp;&amp;
+												(isBotsEnabled)"/>
+		<!--mod-->
+		<bind name="primaryEntityDH" value="'teamShipWeightEntity'; CC.mods_DataComponent; 'modTournamentTeamWeight_' + str(_teamId)"/>
+		<bind name="watchDH" value="'teamWeightData'; ['teamShipWeightEntity.mods_DataComponent.evDataChanged']; teamShipWeightEntity.mods_DataComponent.data"/>
+		<bind name="watch" value="'teamWeight'; (teamWeightData != null &amp;&amp; teamWeightData != undefined) ? teamWeightData.weight : '--'"/>
+
+		<bind name="primaryEntityDH" value="'tournamentModeEntity'; CC.mods_DataComponent; 'modTournamentMode'"/>
+		<bind name="watch" value="'isTournamentMode'; (tournamentModeEntity != null &amp;&amp; tournamentModeEntity != undefined)"/>
+		<!--mod-->
+		<style>
+			<backgroundColor value="0x40000000"/>
+			<width value="100%"/>
+		</style>
+		<bind name="style" value="'height'; isSpectatorsTeam ? '162px' : '100%'"/>
+		<block>
+			<style>
+				<width value="100%"/>
+				<height value="30px"/>
+				<backgroundImage value="url:../service_kit/panel_backgrounds/pbs/grey.png"/>
+				<background9Slice value="[2]"/>
+			</style>
+			<block>
+				<styleClass value="$MiddleAligned"/>
+				<block className="button_dock" type="native">
+					<styleClass value="$FullsizeAbsolute"/>
+					<params>
+						<param name="soundSet" value="dropdown"/>
+					</params>
+					<bind name="selected" value="fillBotsInfotipInfotipIsVisible"/>
+					<bind name="tooltip" value="'FillBotsInfotip'; isTeamManagementAvailable ? {_teamId: _teamId} : null; TooltipBehaviour.verticalInfotip; null; 'fillBotsInfotipInfotipIsVisible'"/>
+					<bind name="enabled" value="isTeamManagementAvailable"/>
+				</block>
+				<block>
+					<style>
+						<marginTop value="8px"/>
+						<marginLeft value="8px"/>
+						<marginRight value="4px"/>
+						<marginBottom value="8px"/>
+						<hitTest value="false"/>
+					</style>
+					<block>
+						<bind name="name" value="'TeamHeader_' + _teamId"/>
+						<style>
+							<marginRight value="4px"/>
+						</style>
+						<bind name="instance" value="'FormationHeader'; {_isTrainingRoom: true, _isSpectatorsTeam: isSpectatorsTeam, _teamId: _teamId}"/>
+					</block>
+					<!--mod-->
+					<block type="text">
+						<bind name="visible" value="
+							isTournamentMode &amp;&amp;
+							(_teamId != SC.Common.TRAINING_ROOM_TEAMS_IDS.NEUTRAL_TEAM) &amp;&amp;
+							!isSpectatorsTeam
+						"/>
+						<styleClass value="$TextDefaultBold17NM"/>
+						<bind name="class" value="colorClass"/>
+						<style>
+							<marginTop value="1px"/>
+							<marginLeft value="10px"/>
+							<textAlign value="right"/>
+						</style>
+						<bind name="text" value="teamWeight"/>
+					</block>
+					<!--mod-->
+					<block className="icon_navigate" type="native">
+						<bind name="visible" value="isTeamManagementAvailable"/>
+						<bind name="gotoAndStop!" value="'down'"/>
+					</block>
+					<style>
+						<flow value="horizontal"/>
+					</style>
+				</block>
+			</block>
+		</block>
+		<block>
+			<bind name="visible" value="!isSpectatorsTeam"/>
+			<style>
+				<width value="100%"/>
+				<height value="30px"/>
+				<backgroundImage value="url:../service_kit/panel_backgrounds/pbs/alphablack.png"/>
+				<background9Slice value="[2]"/>
+			</style>
+			<block>
+				<style>
+					<marginTop value="8px"/>
+				</style>
+				<styleClass value="$MiddleAligned"/>
+				<bind name="watch" value="'notDistributedTeam'; _teamId == SC.Common.TRAINING_ROOM_TEAMS_IDS.NEUTRAL_TEAM"/>
+				<bind name="instance" value="'FormationShipClassesStatus'; !isSpectatorsTeam &amp;&amp; !notDistributedTeam ? {_preBattleId: selfPreBattleId, _teamId: _teamId} : null"/>
+			</block>
+		</block>
+		<block>
+			<styleClass value="$Fullsize"/>
+			<bind name="instance" value="'FormationMainElement'; {	_isTrainingRoom: true, _teamId: _teamId, 
+													_formationPlayerClass: 'TrainingRoomPlayerItem'}"/>
+		</block>
+	</block>
+
+	<block className="TrainingRoomPlayerItemDraggableOrNot">
+		<style>
+			<width value="100%"/>
+			<height value="80px"/>
+		</style>
+		<bind name="entityDH" value="'entityAccount'; _entityAccountId"/>
+		<bind name="watch" value="'elementName'; _isDragEnabled ? 'TrainingRoomPlayerItemDraggable_' + _entityAccountId : 'TrainingRoomPlayerItemNonDraggable_' + _entityAccountId"/>
+		<bind name="name" value="elementName"/>
+		<bind name="watch" value="'isBot'; entityAccount.bot != undefined"/>
+		<bind name="watch" value="'dropTypePostfix'; isBot ? '_bot' : ''"/>
+		<bind name="draggable" value="_isDragEnabled ? 'this': null; entityAccount.preBattlePlayerSimple.teamId + dropTypePostfix; {playerId: entityAccount.preBattlePlayerSimple.id, isBot: isBot}"/>
+		<block className="FormationPlayerItem">
+			<bind name="controller" value="'lesta.unbound.controls.UbInteractiveController'"/>
+			<bind name="dataRefDH" value="'itemAccountEntity'; '$dataRef.ref'"/>
+			<bind name="entityDH" value="'entityAccount'; _entityAccountId ? _entityAccountId : itemAccountEntity.id"/>
+			<bind name="watch" value="'isSelfPlayer'; entityAccount.accountSimple.isSelfPlayer"/>
+			<bind name="watchDH" value="'isSuspended'; ['entityAccount.accountSimple.evSuspendedChanged']; entityAccount.accountSimple.suspended"/>
+			<bind name="watch" value="'isBot'; entityAccount.bot != undefined"/>
+			<bind name="firstEntityDH" value="'chatEntity'; CC.chat"/>
+			<bind name="watchDH" value="'isChatServerAvailable'; ['chatEntity.chat.evConnected', 'chatEntity.chat.evDisConnected']; chatEntity.chat.isConnected"/>
+			<bind name="watchDH" value="'shipId'; ['entityAccount.preBattlePlayerSimple.evShipIdChanged']; entityAccount.preBattlePlayerSimple.shipId"/>
+			<bind name="watchDH" value="'teamId'; ['entityAccount.preBattlePlayerSimple.evTeamIdChanged']; entityAccount.preBattlePlayerSimple.teamId"/>
+			<bind name="watchDH" value="'isReady'; ['entityAccount.preBattlePlayerSimple.evIsReadyChanged']; entityAccount.preBattlePlayerSimple.isReady"/>
+			<bind name="watchDH" value="'isInBattle'; ['entityAccount.accountStatus.evInBattleChanged']; entityAccount.accountStatus.inBattle"/>
+			<bind name="watchDH" value="'isCommander'; ['entityAccount.preBattlePlayerSimple.evIsCommanderChanged']; entityAccount.preBattlePlayerSimple.isCommander"/>
+			<bind name="watchDH" value="'isMercenary'; ['entityAccount.preBattlePlayerSimple.evIsMercenaryChanged']; entityAccount.preBattlePlayerSimple.isMercenary"/>
+			<bind name="watchDH" value="'nickName'; ['entityAccount.accountName.evChanged']; entityAccount.accountName.nickName"/>
+			<bind name="watchDH" value="'pureName'; ['entityAccount.accountName.evChanged']; entityAccount.accountName.name"/>
+			<bind name="firstEntityDH" value="'selfPlayerEntity'; CC.accountSelf"/>
+			<bind name="watchDH" value="'isSelfPlayerCommander'; ['selfPlayerEntity.preBattlePlayerSimple.evIsCommanderChanged']; selfPlayerEntity.preBattlePlayerSimple.isCommander"/>
+			<bind name="watchDH" value="' isSelfPreBattlePlayerSimpleInBattle'; ['selfPlayerEntity.preBattlePlayerSimple.evIsInBattleChanged']; selfPlayerEntity.preBattlePlayerSimple.isInBattle"/>
+			<bind name="watchDH" value="'selfTeamId'; ['selfPlayerEntity.preBattlePlayerSimple.evTeamIdChanged']; selfPlayerEntity.preBattlePlayerSimple.teamId"/>
+			<bind name="watch" value="'isContextMenuAvailable'; !isSelfPlayer &amp;&amp; ((isSelfPlayerCommander &amp;&amp; ! isSelfPreBattlePlayerSimpleInBattle) || isChatServerAvailable)"/>
+			<bind name="firstEntityDH" value="'chatRestrictionsEntity'; CC.chatRestrictions"/>
+			<bind name="watchDH" value="'isTextSettingsBlocked'; []; chatRestrictionsEntity.chatRestrictions.isTextSettingsBlocked"/>
+			<bind name="var" value="{isAnimationPreUnlocked: false,
+				isAnimationUnlocked: 	false}"/>
+			<bind name="dispatch" value="'addedToStage'; 'animationPreActivationEvent'; null; false; 0.1"/>
+			<bind name="catch" value="'animationPreActivationEvent'; {isAnimationPreUnlocked: true}"/>
+			<bind name="changeDispatch" value="isReady; 'animationActivationEvent'"/>
+			<bind name="catch" value="'animationActivationEvent'; {isAnimationUnlocked: isAnimationPreUnlocked ? true : false}"/>
+			<bind name="entityDH" value="'channelEntity'; _channelEntityId"/>
+			<bind name="var" value="{canReportPortChatMisbehaviour : false}"/>
+			<!--mod-->
+			<bind name="primaryEntityDH" value="'shipWeightEntity'; CC.mods_DataComponent; 'modTournamentShipWeight_' + str(shipId)"/>
+			<bind name="watchDH" value="'shipWeightData'; ['shipWeightEntity.mods_DataComponent.evDataChanged']; shipWeightEntity.mods_DataComponent.data"/>
+			<bind name="watch" value="'shipWeight'; (shipWeightData != null &amp;&amp; shipWeightData != undefined) ? shipWeightData.weight : '--'"/>
+			<bind name="primaryEntityDH" value="'tournamentModeEntity'; CC.mods_DataComponent; 'modTournamentMode'"/>
+			<bind name="watch" value="'isTournamentMode'; (tournamentModeEntity != null &amp;&amp; tournamentModeEntity != undefined)"/>
+			<!--mod-->
+			<style>
+				<width value="100%"/>
+				<height value="27px"/>
+				<flow value="horizontal"/>
+			</style>
+			<block className="inner_panel" type="native">
+				<bind name="visible" value="isSelfPlayer"/>
+				<style>
+					<hitTest value="false"/>
+				</style>
+				<styleClass value="$FullsizeAbsolute"/>
+			</block>
+			<block className="dock_submenu_item_bg" type="native">
+				<styleClass value="$FullsizeAbsolute"/>
+				<styleClass value="$PxHorizontalCorrection"/>
+				<bind name="clickSplit"/>
+				<bind name="style" value="'hitTest'; !(isSuspended)"/>
+				<bind name="transition" value="(rollOver || _rollOver || formationPlayerContextMenuVisible) &amp;&amp; isContextMenuAvailable; 0.15; {alpha: 0}; {alpha: 1}"/>
+				<bind name="tooltip" value="'ContactInfoTooltip';	{	_entityAccountId: entityAccount.id, 
+													_actionDenyReason: 'no_reason',
+													_isChatServerAvailable: isChatServerAvailable,
+													_isContextMenuAvailable: isContextMenuAvailable,
+													_playerContext: {type: 'startPrivateChat'}}"/>
+				<bind name="action" value="'left_click';	!(isSelfPlayer) &amp;&amp; !(isBot) &amp;&amp; !(isTextSettingsBlocked) ? 'openChannelForPrivateMessages' : null; {dbId: entityAccount.accountSimple.dbId}"/>
+				<bind name="menu" value="'ContactContextMenu';	!(isSelfPlayer)	? 	{	
+																	_entityAccountId: entityAccount.id, 
+																	_playerContext: {type: 'startPrivateChat'},
+																	_inviteType: SC.Pre_battle.PRE_BATTLE_INVITE_TYPE.COMMON,
+																	_isTrainingRoom: _isTrainingRoom, 
+																	_isBot: isBot,
+																	_channelId: canReportPortChatMisbehaviour ? channelEntity.channel.channelId : null
+																}
+															: null; 
+											 null; null; 'formationPlayerContextMenuVisible'"/>
+			</block>
+			<block>
+				<styleClass value="$FullsizeAbsolute"/>
+				<style>
+					<hitTest value="false"/>
+				</style>
+				<block>
+					<styleClass value="$FullsizeAbsolute"/>
+					<bind name="fade" value="(!isReady || isInBattle) &amp;&amp; isAnimationUnlocked; 0.3; {alpha: 0}; {alpha: 1}; {alpha: 0}; 1; 0"/>
+					<block>
+						<styleClass value="$Fullsize"/>
+						<style>
+							<backgroundColor value="0x90FF9933"/>
+						</style>
+						<bind name="fade" value="(!isReady || isInBattle) &amp;&amp; isAnimationUnlocked; 1.0; {alpha: 1}; {alpha: 0}; {alpha: 1}; 1; 0.5"/>
+					</block>
+				</block>
+				<block>
+					<styleClass value="$FullsizeAbsolute"/>
+					<bind name="fade" value="isReady &amp;&amp; isAnimationUnlocked; 0.3; {alpha: 0}; {alpha: 1}; {alpha: 0}; 1; 0"/>
+					<block>
+						<styleClass value="$Fullsize"/>
+						<style>
+							<backgroundColor value="0x804CE8AA"/>
+						</style>
+						<bind name="fade" value="isReady &amp;&amp; isAnimationUnlocked; 1.0; {alpha: 1}; {alpha: 0}; {alpha: 1}; 1; 0.5"/>
+					</block>
+				</block>
+			</block>
+			<block>
+				<bind name="name" value="'participantDivisionPlayer_' + nickName"/>
+				<styleClass value="$Fullsize"/>
+				<style>
+					<hitTest value="false"/>
+					<marginLeft value="13px"/>
+					<marginRight value="6px"/>
+				</style>
+				<block>
+					<style>
+						<position value="absolute"/>
+						<marginLeft value="-12px"/>
+					</style>
+					<styleClass value="$MiddleVAligned"/>
+					<bind name="instance" value="'VoiceChatDockIcon'; { _playerName: pureName, _isSelf: isSelfPlayer}"/>
+				</block>
+				<block>
+					<bind name="name" value="'participantDivisionPlayer_' + teamId + '_' + nickName"/>
+					<styleClass value="$MiddleVAligned"/>
+					<bind name="instance" value="'DHFormationPlayerIcon'; teamId != SC.Common.TRAINING_ROOM_TEAMS_IDS.NEUTRAL_TEAM ? {_entityAccountId: entityAccount.id, _isOtherDivision: selfTeamId != teamId, _isTrainingRoom: _isTrainingRoom} : null"/>
+				</block>
+				<block type="text">
+					<styleClass value="$MiddleVAligned"/>
+					<style>
+						<marginLeft value="1px"/>
+						<width value="47%"/>
+						<multiline value="false"/>
+						<noTranslate value="true"/>
+					</style>
+					<styleClass value="$TextDefault"/>
+					<bind name="class" value="	tkStatus																	? '$FontColorTeamkiller' :
+							teamId == SC.Common.TRAINING_ROOM_TEAMS_IDS.NEUTRAL_TEAM &amp;&amp; !isSelfPlayer	? '$FontColorGrey' :
+							selfTeamId == teamId &amp;&amp; !isMercenary										? '$FontColorGolden'
+																										: '$FontColorWhite'"/>
+					<bind name="class" value="isSelfPlayer ? '$Bold' : '$None'"/>
+					<bind name="text" value="nickName"/>
+				</block>
+				<block>
+					<bind name="visible" value="shipId"/>
+					<styleClass value="$MiddleVAligned"/>
+					<style>
+						<!--mod-->
+						<!-- width value="53%"/ -->
+						<!--mod-->
+					</style>
+					<bind name="style" value="'width'; isTournamentMode ? '43%' : '53%'"/>
+					<bind name="instance" value="'PreBattlePlayerShip'; (isReady || isInBattle) ? {_shipId: shipId} : null"/>
+				</block>
+				<!--mod-->
+				<block type="text">
+					<bind name="visible" value="shipId &amp;&amp; isTournamentMode"/>
+					<styleClass value="$MiddleVAligned"/>
+					<styleClass value="$TextDefault"/>
+					<style>
+						<width value="10%"/>
+						<textAlign value="right"/>
+					</style>
+					<bind name="text" value="shipWeight"/>
+				</block>
+				<!--mod-->
+				<style>
+					<flow value="horizontal"/>
+				</style>
+			</block>
+		</block>
+	</block>
+</ui>
